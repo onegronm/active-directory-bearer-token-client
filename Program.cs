@@ -18,7 +18,7 @@ namespace DemoBearerTokenClientApp
         static void Main(string[] args)
         {
             var result = GetToken().GetAwaiter().GetResult();
-            // MakeSecureApiCall(result).GetAwaiter().GetResult();
+            MakeSecureApiCall(result).GetAwaiter().GetResult();
         }
 
         private static async Task<AuthenticationResult> GetToken()
@@ -69,6 +69,7 @@ namespace DemoBearerTokenClientApp
             var httpClient = new HttpClient();
             var defaultRequestHeaders = httpClient.DefaultRequestHeaders;
 
+            // Add the Content Type HTTP header
             if (defaultRequestHeaders.Accept == null || !defaultRequestHeaders.Accept
                 .Any(m => m.MediaType == "application/json"))
             {
@@ -76,9 +77,11 @@ namespace DemoBearerTokenClientApp
                     new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
             }
 
+            // Set "bearer" as the authorization type
             defaultRequestHeaders.Authorization =
                 new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", result.AccessToken);
 
+            // call the resource API
             HttpResponseMessage response = await httpClient.GetAsync(config.BaseAddress);
 
             if (response.IsSuccessStatusCode)
